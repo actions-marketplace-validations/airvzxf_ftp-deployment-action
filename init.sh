@@ -6,7 +6,6 @@
 echo "=== Environment variables ==="
 echo "INPUT_SERVER: ${INPUT_SERVER}"
 echo "INPUT_USER: ${INPUT_USER}"
-echo "INPUT_PASSWORD: ${INPUT_PASSWORD}"
 echo "INPUT_LOCAL_DIR: ${INPUT_LOCAL_DIR}"
 echo "INPUT_REMOTE_DIR: ${INPUT_REMOTE_DIR}"
 echo "INPUT_MAX_RETRIES: ${INPUT_MAX_RETRIES}"
@@ -14,6 +13,9 @@ echo "INPUT_DELETE: ${INPUT_DELETE}"
 echo "INPUT_NO_SYMLINKS: ${INPUT_NO_SYMLINKS}"
 echo "INPUT_MIRROR_VERBOSE: ${INPUT_MIRROR_VERBOSE}"
 echo "INPUT_FTP_SSL_ALLOW: ${INPUT_FTP_SSL_ALLOW}"
+echo "INPUT_SSL_VERIFY_CERTIFICATE: ${INPUT_SSL_VERIFY_CERTIFICATE}"
+echo "INPUT_SSL_CHECK_HOSTNAME: ${INPUT_SSL_CHECK_HOSTNAME}"
+echo "INPUT_FTP_PASSIVE_MODE: ${INPUT_FTP_PASSIVE_MODE}"
 echo "INPUT_FTP_USE_FEAT: ${INPUT_FTP_USE_FEAT}"
 echo "INPUT_FTP_NOP_INTERVAL: ${INPUT_FTP_NOP_INTERVAL}"
 echo "INPUT_NET_MAX_RETRIES: ${INPUT_NET_MAX_RETRIES}"
@@ -34,58 +36,79 @@ FTP_SETTINGS=""
 
 # ftp:ssl-allow
 if [ -n "${INPUT_FTP_SSL_ALLOW}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:ssl-allow ${INPUT_FTP_SSL_ALLOW};"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:ssl-allow ${INPUT_FTP_SSL_ALLOW};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:ssl-allow true;"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:ssl-allow true;"
+fi
+
+# ssl:verify-certificate
+if [ -n "${INPUT_SSL_VERIFY_CERTIFICATE}" ]; then
+  FTP_SETTINGS="${FTP_SETTINGS}set ssl:verify-certificate ${INPUT_SSL_VERIFY_CERTIFICATE};"
+else
+  FTP_SETTINGS="${FTP_SETTINGS}set ssl:verify-certificate false;"
+fi
+
+# ssl:check-hostname
+if [ -n "${INPUT_SSL_CHECK_HOSTNAME}" ]; then
+  FTP_SETTINGS="${FTP_SETTINGS}set ssl:check-hostname ${INPUT_SSL_CHECK_HOSTNAME};"
+else
+  FTP_SETTINGS="${FTP_SETTINGS}set ssl:check-hostname true;"
+fi
+
+# ftp:passive-mode
+if [ -n "${INPUT_FTP_PASSIVE_MODE}" ]; then
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:passive-mode ${INPUT_FTP_PASSIVE_MODE};"
+else
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:passive-mode true;"
 fi
 
 # ftp:use-feat
 if [ -n "${INPUT_FTP_USE_FEAT}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:use-feat ${INPUT_FTP_USE_FEAT};"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:use-feat ${INPUT_FTP_USE_FEAT};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:use-feat true;"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:use-feat false;"
 fi
 
 # ftp:nop-interval
 if [ -n "${INPUT_FTP_NOP_INTERVAL}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:nop-interval ${INPUT_FTP_NOP_INTERVAL};"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:nop-interval ${INPUT_FTP_NOP_INTERVAL};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set ftp:nop-interval 2;"
+  FTP_SETTINGS="${FTP_SETTINGS}set ftp:nop-interval 2;"
 fi
 
 # net:max-retries
 if [ -n "${INPUT_NET_MAX_RETRIES}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set net:max-retries ${INPUT_NET_MAX_RETRIES};"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:max-retries ${INPUT_NET_MAX_RETRIES};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set net:max-retries 1;"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:max-retries 1;"
 fi
 
 # net:persist-retries
 if [ -n "${INPUT_NET_PERSIST_RETRIES}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set net:persist-retries ${INPUT_NET_PERSIST_RETRIES};"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:persist-retries ${INPUT_NET_PERSIST_RETRIES};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set net:persist-retries 5;"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:persist-retries 5;"
 fi
 
 # net:timeout
 if [ -n "${INPUT_NET_TIMEOUT}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set net:timeout ${INPUT_NET_TIMEOUT};"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:timeout ${INPUT_NET_TIMEOUT};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set net:timeout 15s;"
+  FTP_SETTINGS="${FTP_SETTINGS}set net:timeout 15s;"
 fi
 
 # dns:max-retries
 if [ -n "${INPUT_DNS_MAX_RETRIES}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set dns:max-retries ${INPUT_DNS_MAX_RETRIES};"
+  FTP_SETTINGS="${FTP_SETTINGS}set dns:max-retries ${INPUT_DNS_MAX_RETRIES};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set dns:max-retries 8;"
+  FTP_SETTINGS="${FTP_SETTINGS}set dns:max-retries 8;"
 fi
 
 # dns:fatal-timeout
 if [ -n "${INPUT_DNS_FATAL_TIMEOUT}" ]; then
-  FTP_SETTINGS="${FTP_SETTINGS} set dns:fatal-timeout ${INPUT_DNS_FATAL_TIMEOUT};"
+  FTP_SETTINGS="${FTP_SETTINGS}set dns:fatal-timeout ${INPUT_DNS_FATAL_TIMEOUT};"
 else
-  FTP_SETTINGS="${FTP_SETTINGS} set dns:fatal-timeout 10s;"
+  FTP_SETTINGS="${FTP_SETTINGS}set dns:fatal-timeout 10s;"
 fi
 
 # Any manual settings
@@ -107,14 +130,14 @@ fi
 if [ -z "${INPUT_LOCAL_DIR}" ]; then
   INPUT_LOCAL_DIR="./"
 else
-  INPUT_LOCAL_DIR="${INPUT_LOCAL_DIR}/"
+  INPUT_LOCAL_DIR="${INPUT_LOCAL_DIR%/}/"
 fi
 
 # Remote path to put the directories
 if [ -z "${INPUT_REMOTE_DIR}" ]; then
   INPUT_REMOTE_DIR="./"
 else
-  INPUT_REMOTE_DIR="${INPUT_REMOTE_DIR}/"
+  INPUT_REMOTE_DIR="${INPUT_REMOTE_DIR%/}/"
 fi
 
 # Reverse mirror which uploads or updates a directory tree on server

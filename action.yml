@@ -36,7 +36,19 @@ inputs:
   ftp_ssl_allow:
     description: 'FTP - Allow SSL encryption.'
     required: false
+    default: 'true'
+  ssl_verify_certificate:
+    description: 'Verify SSL certificate.'
+    required: false
     default: 'false'
+  ssl_check_hostname:
+    description: 'Check certificate hostname.'
+    required: false
+    default: 'true'
+  ftp_passive_mode:
+    description: 'FTP - This can be useful if you are behind a firewall or a dumb masquerading router.'
+    required: false
+    default: 'true'
   ftp_use_feat:
     description: 'FTP - FEAT: Determining what extended features the FTP server supports.'
     required: false

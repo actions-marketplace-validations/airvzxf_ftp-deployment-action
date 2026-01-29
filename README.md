@@ -2,6 +2,12 @@
 
 This GitHub action copies the files via FTP from your Git project to your server in a specific path.
 
+## Security and SSL
+
+By default, `ftp_ssl_allow` is set to `true` to ensure your connection is encrypted. However, `ssl_verify_certificate` is set to `false` by default. This means your data is encrypted during transfer, but the Action does not verify if the server's certificate is valid or matches the hostname. This prevents connection errors with self-signed certificates or direct IP connections but leaves you vulnerable to Man-in-the-Middle (MITM) attacks if someone spoofs your DNS.
+
+If you require strict security, set `ssl_verify_certificate: true` and ensure your server has a valid certificate matching the hostname used.
+
 ## Usage Example
 
 Add this code in `./.github/workflows/your_action.yml`.
@@ -36,26 +42,29 @@ Optionally, you can get the live version which has the last commits using the `m
 
 Usually the zero values mean unlimited or infinite. This table is based on the default values on `lftp-4.9.2`.
 
-| Option              | Description                                                                           | Required | Default | Example                                                                                           |
-|---------------------|---------------------------------------------------------------------------------------|----------|---------|---------------------------------------------------------------------------------------------------|
-| server              | FTP Server.                                                                           | Yes      | N/A     | rovisoft.net                                                                                      |
-| user                | FTP Username.                                                                         | Yes      | N/A     | myself@rovisoft.net                                                                               |
-| password            | FTP Password.                                                                         | Yes      | N/A     | ExampleOnlyAlphabets                                                                              |
-| local_dir           | Local directory.                                                                      | No       | "./"    | "./public_html"                                                                                   |
-| remote_dir          | Remote directory.                                                                     | No       | "./"    | "/www/user/home"                                                                                  |
-| max_retries         | Times that the `lftp` command will be executed if an error occurred.                  | No       | 10      | N/A                                                                                               |
-| delete              | Delete all the files inside of the remote directory before the upload process.        | No       | false   | N/A                                                                                               |
-| no_symlinks         | Do not create symbolic links.                                                         | No       | false   | N/A                                                                                               |
-| mirror_verbose      | Mirror verbosity level.                                                               | No       | 1       | N/A                                                                                               |
-| ftp_ssl_allow       | FTP - Allow SSL encryption                                                            | No       | true    | N/A                                                                                               |
-| ftp_use_feat        | FTP - FEAT: Determining what extended features the FTP server supports.               | No       | true    | N/A                                                                                               |
-| ftp_nop_interval    | FTP - Delay in seconds between NOOP commands when downloading tail of a file.         | No       | 2       | N/A                                                                                               |
-| net_max_retries     | NET - Maximum number of operation without success.<br> 0 unlimited.<br> 1 no retries. | No       | 1       | N/A                                                                                               |
-| net_persist_retries | NET - Ignore hard errors.<br> When reply 5xx errors or there is too many users.       | No       | 5       | N/A                                                                                               |
-| net_timeout         | NET - Sets the network protocol timeout.                                              | No       | 15s     | N/A                                                                                               |
-| dns_max_retries     | DNS - 0 no limit trying to lookup an address otherwise try only this number of times. | No       | 8       | N/A                                                                                               |
-| dns_fatal_timeout   | DNS - Time for DNS queries.<br> Set to "never" to disable.                            | No       | 10s     | N/A                                                                                               |
-| lftp_settings       | Any other settings that you find in the MAN pages for the LFTP package.               | No       | ""      | "set cache:cache-empty-listings true; set cmd:status-interval 1s; set http:user-agent 'firefox';" |
+| Option                 | Description                                                                           | Required | Default | Example                                                                                           |
+|------------------------|---------------------------------------------------------------------------------------|----------|---------|---------------------------------------------------------------------------------------------------|
+| server                 | FTP Server.                                                                           | Yes      | N/A     | rovisoft.net                                                                                      |
+| user                   | FTP Username.                                                                         | Yes      | N/A     | myself@rovisoft.net                                                                               |
+| password               | FTP Password.                                                                         | Yes      | N/A     | ExampleOnlyAlphabets                                                                              |
+| local_dir              | Local directory.                                                                      | No       | "./"    | "./public_html"                                                                                   |
+| remote_dir             | Remote directory.                                                                     | No       | "./"    | "/www/user/home"                                                                                  |
+| max_retries            | Times that the `lftp` command will be executed if an error occurred.                  | No       | 10      | N/A                                                                                               |
+| delete                 | Delete all the files inside of the remote directory before the upload process.        | No       | false   | N/A                                                                                               |
+| no_symlinks            | Do not create symbolic links.                                                         | No       | true    | N/A                                                                                               |
+| mirror_verbose         | Mirror verbosity level.                                                               | No       | 1       | N/A                                                                                               |
+| ftp_ssl_allow          | FTP - Allow SSL encryption.                                                           | No       | true    | N/A                                                                                               |
+| ssl_verify_certificate | FTP - Verify SSL certificate.                                                         | No       | false   | N/A                                                                                               |
+| ssl_check_hostname     | FTP - Check certificate hostname.                                                     | No       | true    | N/A                                                                                               |
+| ftp_passive_mode       | FTP - This can be useful if you are behind a firewall or a dumb masquerading router.  | No       | true    | N/A                                                                                               |
+| ftp_use_feat           | FTP - FEAT: Determining what extended features the FTP server supports.               | No       | false   | N/A                                                                                               |
+| ftp_nop_interval       | FTP - Delay in seconds between NOOP commands when downloading tail of a file.         | No       | 2       | N/A                                                                                               |
+| net_max_retries        | NET - Maximum number of operation without success.<br> 0 unlimited.<br> 1 no retries. | No       | 1       | N/A                                                                                               |
+| net_persist_retries    | NET - Ignore hard errors.<br> When reply 5xx errors or there is too many users.       | No       | 5       | N/A                                                                                               |
+| net_timeout            | NET - Sets the network protocol timeout.                                              | No       | 15s     | N/A                                                                                               |
+| dns_max_retries        | DNS - 0 no limit trying to lookup an address otherwise try only this number of times. | No       | 8       | N/A                                                                                               |
+| dns_fatal_timeout      | DNS - Time for DNS queries.<br> Set to "never" to disable.                            | No       | 10s     | N/A                                                                                               |
+| lftp_settings          | Any other settings that you find in the MAN pages for the LFTP package.               | No       | ""      | "set cache:cache-empty-listings true; set cmd:status-interval 1s; set http:user-agent 'firefox';" |
 
 More information on the official site for [lftp - Manual pages][2].
 
@@ -83,7 +92,9 @@ jobs:
           delete: "true"
           max_retries: "7"
           no_symlinks: "false"
-          ftp_ssl_allow: "true"
+          ftp_ssl_allow: "false"
+          ssl_verify_certificate: "true"
+          ssl_check_hostname: "false"
           ftp_use_feat: "true"
           ftp_nop_interval: "9"
           net_max_retries: "0"
